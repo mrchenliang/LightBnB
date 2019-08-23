@@ -17,12 +17,15 @@ const pool = new Pool({
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function(email) {
+  const start = Date.now();
   const queryString = `
   select * 
   from users
   where email = $1`;
   return pool.query(queryString, [email.toLowerCase()])
   .then(res => {
+    const duration = Date.now() - start;
+    console.log('executed query', { queryString, duration, rows: res.rowCount });
     return res.rows[0];
   });
 };
@@ -34,11 +37,14 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id) {
+  const start = Date.now();
   const queryString = `
   select * 
   from users
   where id = $1`;
   return pool.query(queryString, [id]).then(res => {
+    const duration = Date.now() - start;
+    console.log('executed query', { queryString, duration, rows: res.rowCount });
     return res.rows[0];
   });
 };
@@ -50,6 +56,7 @@ exports.getUserWithId = getUserWithId;
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser = function(user) {
+  const start = Date.now();
   const queryString = `
   insert into users (name, email, password) 
   values ($1, $2, $3)
@@ -57,6 +64,8 @@ const addUser = function(user) {
   return pool
     .query(queryString, [user.name, user.email, user.password])
     .then(res => {
+      const duration = Date.now() - start;
+      console.log('executed query', { queryString, duration, rows: res.rowCount });
       return res.rows;
     });
 };
@@ -71,6 +80,7 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
+  const start = Date.now();
   const queryString = `
   select properties.*, reservations.start_date, reservations.end_date
   from reservations
@@ -78,6 +88,8 @@ const getAllReservations = function(guest_id, limit = 10) {
   where guest_id = $1
   limit $2`;
   return pool.query(queryString, [guest_id, limit]).then(res => {
+    const duration = Date.now() - start;
+    console.log('executed query', { queryString, duration, rows: res.rowCount });
     return res.rows;
   });
 };
@@ -155,8 +167,9 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
+  const start = Date.now();
   const queryString = `
-  insert into properties(owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms)
+  insert into properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms)
   values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
   returning *;`;
   return pool
@@ -177,6 +190,8 @@ const addProperty = function(property) {
       property.number_of_bedrooms
     ])
     .then(res => {
+      const duration = Date.now() - start;
+      console.log('executed query', { queryString, duration, rows: res.rowCount });
       return res.rows;
     });
 };
