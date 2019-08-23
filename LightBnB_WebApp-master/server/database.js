@@ -21,7 +21,8 @@ const getUserWithEmail = function(email) {
   select * 
   from users
   where email = $1`;
-  return pool.query(queryString, [email.toLowerCase()]).then(res => {
+  return pool.query(queryString, [email.toLowerCase()])
+  .then(res => {
     return res.rows[0];
   });
 };
@@ -73,11 +74,11 @@ const getAllReservations = function(guest_id, limit = 10) {
   const queryString = `
   select properties.*, reservations.start_date, reservations.end_date
   from reservations
-  join properties ON properties.id = reservations.property_id
+  join properties on properties.id = reservations.property_id
   where guest_id = $1
   limit $2`;
   return pool.query(queryString, [guest_id, limit]).then(res => {
-    return res.rows[0];
+    return res.rows;
   });
 };
 exports.getAllReservations = getAllReservations;
@@ -97,7 +98,7 @@ const getAllProperties = function(options, limit = 10) {
   let queryString = `
   select properties.*, avg(property_reviews.rating) as average_rating
   from properties
-  join property_reviews ON properties.id = property_id
+  join property_reviews on properties.id = property_id
   `;
 
   // 3 city
